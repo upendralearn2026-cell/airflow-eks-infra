@@ -1,42 +1,51 @@
-name: Deploy Infra
+name: Terrafrom Infra Deployment in Dev AWS account
 
 on: 
   workflow_dispatch:
     inputs:
       environment:
-        description: "Deploy to Prod"
+        description: "Deploy to Dev"
         required: true
-        default: prod
+        default: Dev
+
 
 jobs:
-  terraform:
-    runs-on: ubuntu-latest
- 
-  default:
-   run:
-     working_directory: /env/prod 
-    
-    steps:
-      - uses: actions/checkout@v3
+  deploy-dev:
+    name: Deploy to Dev 
+    permissions: 
+       packages: write
+       contents: read
+       id-token: write
 
-      - name: Configure AWS
-        uses: aws-actions/configure-aws-credentials@v2
-        with:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: /env/prod        
+
+    steps:
+     - name: checkout repository
+       uses: actions/checkout@v2
+
+     - name: Configure AWS
+       uses: aws-actions/configure-aws-credentials@v2
+       with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
           aws-region: us-east-1
 
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v2
+     - name: Install Terraform
+       uses: hashicorp/setup-terraform@v2
+       with: 
+         terraform_version: 1.5.6
 
-      - name: Terrafrom init
-        run: |
+     - name: Terrafrom init
+       run: |
          terraform init   
 
-      - name: Terrafrom plan
-        run: |
-         terraform plan -var-file = "terraform.tfvars"
+     - name: Terrafrom plan
+       run: |
+         terraform plan 
 
-      - name: Terrafrom apply
-        run: |
-         terraform apply --auto-approve -var-file = "terraform.tfvars"
+     - name: Terrafrom apply
+       run: |
+         terraform apply --auto-approve  
