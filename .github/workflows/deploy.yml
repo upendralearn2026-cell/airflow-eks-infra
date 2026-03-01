@@ -11,7 +11,11 @@ on:
 jobs:
   terraform:
     runs-on: ubuntu-latest
-
+ 
+  default:
+   run:
+     working_directory: /env/prod 
+    
     steps:
       - uses: actions/checkout@v3
 
